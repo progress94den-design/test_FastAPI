@@ -13,7 +13,7 @@ class DatabaseHelper:
             self,
             url: str,
             echo: bool = False,
-            echo_bool: bool = False,
+            echo_pool: bool = False,
             pool_size: int = 5,
             max_overflow: int = 10,
     ) -> None:
@@ -21,7 +21,7 @@ class DatabaseHelper:
             url=url,
             echo=echo,
             pool_size=pool_size,
-            echo_bool=echo_bool,
+            echo_pool=echo_pool,
             max_overflow=max_overflow,
         )
         self.session_factory: async_sessionmaker[AsyncSession] = async_sessionmaker(
@@ -40,9 +40,9 @@ class DatabaseHelper:
 
 
 db_helper: DatabaseHelper = DatabaseHelper(
-    usr=str(settings.db.url),
+    url=str(settings.db.url),
     echo=settings.db.echo,
-    echo_bool=settings.db.echo_bool,
+    echo_pool=settings.db.echo_bool,
     pool_size=settings.db.pool_size,
     max_overflow=settings.db.max_overflow,
 )
