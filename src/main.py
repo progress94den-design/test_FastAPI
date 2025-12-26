@@ -5,7 +5,7 @@ import uvicorn
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
-from api import api_router
+from api.routers import api_router
 from core.config import settings
 from core.db_helper import db_helper
 
@@ -25,7 +25,7 @@ main_app.include_router(api_router, prefix=settings.api_prefix.prefix)
 
 if __name__ == '__main__':
     uvicorn.run(
-        "main_app:app",
+        "main:main_app",
         host=settings.run_server.host,
         port=settings.run_server.port,
         reload=True
