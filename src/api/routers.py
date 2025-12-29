@@ -12,6 +12,7 @@ api_router.include_router(
     tags=["Users"],
 )
 api_router.include_router(
+    auth_router,
     prefix=settings.api_prefix.v1.auth,
     tags=["Auth"],
 )
