@@ -12,5 +12,5 @@ async def get_users_db(
         AsyncSession,
         Depends(db_helper.session_getter),
     ],
-) -> AsyncGenerator[SQLAlchemyUserDatabase, None]:
+) -> SQLAlchemyUserDatabase:
     yield User.get_db(session=session)
