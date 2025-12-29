@@ -5,7 +5,7 @@ from pydantic_extra_types.phone_numbers import PhoneNumber
 
 
 class BaseUser:
-    phone: PhoneNumber
+    phone_number: PhoneNumber
 
 
 class UserRead(schemas.BaseUser[uuid.UUID], BaseUser):

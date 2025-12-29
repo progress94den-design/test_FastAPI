@@ -4,7 +4,6 @@ from fastapi import Depends, Request
 from fastapi_users import BaseUserManager, UUIDIDMixin
 
 from models.users import User
-
 from core.config import settings
 
 
@@ -16,7 +15,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         self,
         user: User,
         request: Request | None = None,
-    ):
+    ) -> None:
         print(f"User {user.id} has registered.")
 
     # async def on_after_forgot_password(

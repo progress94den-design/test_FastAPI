@@ -1,5 +1,4 @@
-from fastapi_users.db import SQLAlchemyBaseUserTableUUID
-from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
+from fastapi_users.db import SQLAlchemyBaseUserTableUUID, SQLAlchemyUserDatabase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -12,5 +11,5 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
     phone_number: Mapped[str]
 
     @classmethod
-    def get_db(cls, session: AsyncSession):
+    def get_db(cls, session: AsyncSession) -> SQLAlchemyUserDatabase:
         return SQLAlchemyUserDatabase(session, User)
