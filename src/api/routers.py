@@ -7,8 +7,11 @@ from api.api_v1.auth import auth_router
 api_router = APIRouter(prefix=settings.api_prefix.v1.prefix)
 
 api_router.include_router(
-    users_router, prefix=settings.api_prefix.v1.users, tags=["Users"]
+    users_router,
+    prefix=settings.api_prefix.v1.users,
+    tags=["Users"],
 )
 api_router.include_router(
-    auth_router, prefix=settings.api_prefix.v1.auth, tags=["Auth"]
+    prefix=settings.api_prefix.v1.auth,
+    tags=["Auth"],
 )
