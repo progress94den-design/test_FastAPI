@@ -6,14 +6,7 @@ from schemas.user import UserRead, UserUpdate
 users_router = APIRouter()
 
 # /me
-# /{id}
+# /{id} - GET, PATCH, DELETE доступен только для СуперЮзера. Создание СуперЮзера пока не реализованно
 users_router.include_router(
     router=fastapi_users.get_users_router(UserRead, UserUpdate),
 )
-
-
-@users_router.delete("/{id}")
-def delete_user(id: str) -> dict[str, str]:
-    return {
-        "message": "Метод не доступен",
-    }
