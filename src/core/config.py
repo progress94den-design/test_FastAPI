@@ -25,6 +25,8 @@ class CookieConfig(BaseModel):
     secret: str
     cookie_max_age: int = 3600
     lifetime_seconds: int = 3600
+    reset_password_token_secret: str
+    verification_token_secret: str
 
 
 class DatabaseConfig(BaseModel):
@@ -49,9 +51,7 @@ class Settings(BaseSettings):
         case_sensitive=False,
         env_nested_delimiter="__",
         env_prefix="APP_CONFIG__",
-        env_file=(
-            BASE_DIR / ".env",
-        ),
+        env_file=(BASE_DIR / ".env",),
     )
     run_server: RunServer = RunServer()
     api_prefix: ApiPrefix = ApiPrefix()
