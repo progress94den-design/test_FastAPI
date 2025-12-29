@@ -21,6 +21,12 @@ class ApiPrefix(BaseModel):
     v1: ApiV1Prefix = ApiV1Prefix()
 
 
+class CookieConfig(BaseModel):
+    secret: str
+    cookie_max_age: int = 3600
+    lifetime_seconds: int = 3600
+
+
 class DatabaseConfig(BaseModel):
     url: PostgresDsn
     echo: bool = False
@@ -50,6 +56,7 @@ class Settings(BaseSettings):
     run_server: RunServer = RunServer()
     api_prefix: ApiPrefix = ApiPrefix()
     db: DatabaseConfig
+    cookie: CookieConfig
 
 
 settings = Settings()
