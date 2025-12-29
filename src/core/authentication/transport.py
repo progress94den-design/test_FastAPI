@@ -1,3 +1,7 @@
 from fastapi_users.authentication import CookieTransport
 
-cookie_transport = CookieTransport(cookie_max_age=3600)
+from core.config import settings
+
+cookie_transport = CookieTransport(
+    cookie_max_age=settings.cookie.cookie_max_age,
+)
