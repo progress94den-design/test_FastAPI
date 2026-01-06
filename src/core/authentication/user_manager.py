@@ -8,6 +8,7 @@ from sqlalchemy import select
 from models.users import User
 from core.config import settings
 from schemas.user import UserCreate
+from services.mailing.send_welcome import send_welcome
 
 
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
@@ -39,4 +40,5 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         user: User,
         request: Request | None = None,
     ) -> None:
+        await send_welcome(recipient=user.email)
         print(f"User {user.id} has registered.")
