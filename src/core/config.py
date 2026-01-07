@@ -11,6 +11,12 @@ class RunServer(BaseModel):
     port: int = 8000
 
 
+class EmailConfig(BaseModel):
+    host: str = "127.0.0.1"
+    port: int = 1025
+    admin_email: str = "admin@site.com"
+
+
 class ApiV1Prefix(BaseModel):
     prefix: str = "/v1"
     users: str = "/users"
@@ -58,6 +64,7 @@ class Settings(BaseSettings):
     api_prefix: ApiPrefix = ApiPrefix()
     db: DatabaseConfig
     cookie: CookieConfig
+    email: EmailConfig = EmailConfig()
 
 
 settings = Settings()

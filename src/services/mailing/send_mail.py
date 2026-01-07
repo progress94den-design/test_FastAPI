@@ -3,6 +3,8 @@ import aiosmtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+from core.config import settings
+
 
 async def send_email(
     recipient: str,
@@ -10,7 +12,7 @@ async def send_email(
     plain_content: str,
     html_content: str = "",
 ):
-    admin_email = "admin@site.com"
+    admin_email = settings.email.admin_email
 
     message = MIMEMultipart("alternative")
     message["From"] = admin_email
@@ -34,6 +36,6 @@ async def send_email(
 
     await aiosmtplib.send(
         message,
-        hostname="127.0.0.1",
-        port=1025,
+        hostname=settings.email.host,
+        port=settings.email.port,
     )
