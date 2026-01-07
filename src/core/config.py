@@ -1,5 +1,5 @@
 from pathlib import Path
-from pydantic import BaseModel, PostgresDsn
+from pydantic import BaseModel, PostgresDsn, AmqpDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -15,6 +15,10 @@ class EmailConfig(BaseModel):
     host: str = "127.0.0.1"
     port: int = 1025
     admin_email: str = "admin@site.com"
+
+
+class RabbitMQConfig(BaseModel):
+    url: AmqpDsn
 
 
 class ApiV1Prefix(BaseModel):
@@ -65,6 +69,7 @@ class Settings(BaseSettings):
     db: DatabaseConfig
     cookie: CookieConfig
     email: EmailConfig = EmailConfig()
+    rabbitmq: RabbitMQConfig
 
 
 settings = Settings()
