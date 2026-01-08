@@ -8,7 +8,7 @@ from sqlalchemy import select
 from models.users import User
 from core.config import settings
 from schemas.user import UserCreate
-from services.celery.tasks import send_email_on_after_register
+from services.tasks.welcome_email_notification import send_welcome_email
 
 
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
@@ -40,5 +40,5 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         user: User,
         request: Request | None = None,
     ) -> None:
-        send_email_on_after_register.delay(user.email)
+        await send_welcome_email.kiq(user.email)
         print(f"User {user.id} has registered.")
