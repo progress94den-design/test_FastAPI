@@ -17,7 +17,7 @@ class EmailConfig(BaseModel):
     admin_email: str = "admin@site.com"
 
 
-class RabbitMQConfig(BaseModel):
+class TaskiqConfig(BaseModel):
     url: AmqpDsn
 
 
@@ -69,7 +69,7 @@ class Settings(BaseSettings):
     db: DatabaseConfig
     cookie: CookieConfig
     email: EmailConfig = EmailConfig()
-    rabbitmq: RabbitMQConfig
+    taskiq: TaskiqConfig
 
 
 settings = Settings()
