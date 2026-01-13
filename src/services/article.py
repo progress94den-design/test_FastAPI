@@ -1,6 +1,7 @@
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
+from sqlalchemy.sql import Select
 
 from crud.article import CRUDArticle
 from schemas.article import ArticleCreate
@@ -29,6 +30,11 @@ class ArticleService:
             )
 
         return article
+
+    @staticmethod
+    def get_articles() -> Select:
+        repo = CRUDArticle()
+        return repo.get_list_smtp()
 
     @staticmethod
     async def create_article(

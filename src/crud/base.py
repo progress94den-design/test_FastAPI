@@ -1,4 +1,4 @@
-from typing import Generic, Type, TypeVar
+from typing import Generic, Type, TypeVar, Any
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -11,7 +11,7 @@ class CRUDBase(Generic[ModelType]):
 
     async def get_by_id(
         self,
-        obj_id,
+        obj_id: Any,
         session: AsyncSession,
     ) -> ModelType | None:
         stmt = select(self.model).where(self.model.id == obj_id)
@@ -20,6 +20,7 @@ class CRUDBase(Generic[ModelType]):
 
     async def create(
         self,
+        *,
         data: dict,
         session: AsyncSession,
     ) -> ModelType:
