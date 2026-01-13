@@ -32,9 +32,13 @@ class ArticleService:
         return article
 
     @staticmethod
-    def get_articles() -> Select:
+    def get_articles_stmt(*, search: str | None = None) -> Select:
         repo = CRUDArticle()
-        return repo.get_list_smtp()
+
+        if search:
+            return repo.search_stmt(query=search)
+
+        return repo.get_list_stmt()
 
     @staticmethod
     async def create_article(

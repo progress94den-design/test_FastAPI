@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends
+from idlelib.query import Query
+
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated
 from uuid import UUID
@@ -44,6 +46,7 @@ async def get_articles(
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
     params: Annotated[Params, Depends(Params)],
     user: Annotated[User, Depends(current_active_user)],
+    search: str | None = Query(None, min_length=2),
 ):
-    stmt = ArticleService.get_articles()
+    stmt = ArticleService.get_articles_stmt(search=search)
     return await paginate(session, stmt, params)
