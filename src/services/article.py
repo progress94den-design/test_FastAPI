@@ -1,4 +1,4 @@
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from sqlalchemy.sql import Select
@@ -7,18 +7,22 @@ from crud.article import CRUDArticle
 from schemas.article import ArticleCreate
 from models.users import User
 from models.article import Article
+from services.minio import MinioService, minio_service
 
 
 class ArticleService:
 
-    @staticmethod
+    def __init__(self, crud: CRUDArticle, minio: MinioService) -> None:
+        self.crud = crud
+        self.minio = minio
+
     async def get_article(
+        self,
         session: AsyncSession,
         article_id: UUID,
     ) -> Article:
-        repo = CRUDArticle()
 
-        article = await repo.get_by_id(
+        article = await self.crud.get_by_id(
             obj_id=article_id,
             session=session,
         )
@@ -31,31 +35,41 @@ class ArticleService:
 
         return article
 
-    @staticmethod
-    def get_articles_stmt(*, search: str | None = None) -> Select:
-        repo = CRUDArticle()
-
+    def get_articles_stmt(self, search: str | None = None) -> Select:
         if search:
-            return repo.search_stmt(query=search)
+            return self.crud.search_stmt(query=search)
 
-        return repo.get_list_stmt()
+        return self.crud.get_list_stmt()
 
-    @staticmethod
     async def create_article(
+        self,
         data: ArticleCreate,
         session: AsyncSession,
         user: User,
+        image: UploadFile | None,
     ) -> Article:
-        repo = CRUDArticle()
-
-        article = await repo.create(
+        article = await self.crud.create(
             data={
                 "title": data.title,
                 "text": data.text,
                 "user_id": user.id,
+                "image": None,
             },
             session=session,
         )
 
+        if image:
+            image_url = await self.minio.upload_file(
+                bucket_name="articles",
+                file=image,
+                user_id=user.id,
+                obj_id=article.id,
+            )
+            article.image = image_url
+
         await session.commit()
+        await session.refresh(article)
         return article
+
+
+article_service: ArticleService = ArticleService(CRUDArticle(), minio_service)

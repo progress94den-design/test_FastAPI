@@ -19,4 +19,6 @@ class ArticleRead(ArticleBase):
 
     user_id: UUID
 
+    image: str
+
     model_config = ConfigDict(from_attributes=True)
