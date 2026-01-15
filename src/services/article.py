@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy.sql import Select
 
 from crud.article import CRUDArticle
-from schemas.article import ArticleCreate
+from schemas.article import ArticleCreate, ArticleUpdate
 from models.users import User
 from models.article import Article
 from services.minio import MinioService, minio_service
@@ -71,5 +71,37 @@ class ArticleService:
         await session.refresh(article)
         return article
 
+    async def update_article(
+        self,
+        article_id: UUID,
+        data: ArticleUpdate,
+        session: AsyncSession,
+        user: User,
+        image: UploadFile | None,
+    ) -> Article:
+        article = await self.get_article(article_id=article_id, session=session)
+
+        if user.id != article.user_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"You are not allowed to update this article",
+            )
+
+        for field, value in data.model_dump(exclude_unset=True).items():
+            if value is not None:
+                setattr(article, field, value)
+
+        if image:
+            image_url = await self.minio.upload_file(
+                bucket_name="articles",
+                file=image,
+                user_id=user.id,
+                obj_id=article.id,
+            )
+            article.image = image_url
+
+        await session.commit()
+        await session.refresh(article)
+        return article
 
 article_service: ArticleService = ArticleService(CRUDArticle(), minio_service)
