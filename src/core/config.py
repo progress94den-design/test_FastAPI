@@ -21,6 +21,13 @@ class TaskiqConfig(BaseModel):
     url: AmqpDsn
 
 
+class MinioConfig(BaseModel):
+    endpoint: str
+    access_key: str
+    secret_key: str
+    secure: bool = False
+
+
 class ApiV1Prefix(BaseModel):
     prefix: str = "/v1"
     users: str = "/users"
@@ -71,6 +78,7 @@ class Settings(BaseSettings):
     cookie: CookieConfig
     email: EmailConfig = EmailConfig()
     taskiq: TaskiqConfig
+    minio: MinioConfig
 
 
 settings = Settings()
