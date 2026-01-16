@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, UploadFile, File, status
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated
 from uuid import UUID
@@ -24,3 +24,25 @@ async def create_category(
         data=data,
         session=session,
     )
+
+
+@category_router.get("/{category_id}", response_model=CategoryRead)
+async def get_category(
+    category_id: UUID,
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    user: Annotated[User, Depends(current_active_user)],
+):
+    return await category_service.get_category(
+        session=session,
+        category_id=category_id,
+    )
+
+
+@category_router.get("/", response_model=Page[CategoryRead])
+async def get_categories(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    params: Annotated[Params, Depends(Params)],
+    user: Annotated[User, Depends(current_active_user)],
+):
+    stmt = category_service.get_categories_smtp()
+    return await paginate(session, stmt, params)
