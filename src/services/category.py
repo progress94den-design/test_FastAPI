@@ -41,24 +41,6 @@ class CategoryService:
         data: CategoryCreate,
         session: AsyncSession,
     ) -> Category:
-        # existing = await self.crud.get_by_name(
-        #     name=data.name,
-        #     session=session,
-        # )
-        # if existing:
-        #     raise HTTPException(
-        #         status_code=status.HTTP_400_BAD_REQUEST,
-        #         detail=f"Category with name {data.name} already exists",
-        #     )
-        #
-        # category = await self.crud.create(
-        #     data={
-        #         "name": data.name,
-        #     },
-        #     session=session,
-        # )
-        #
-        # await session.commit()
         try:
             category = await self.crud.create(
                 data={"name": data.name},
