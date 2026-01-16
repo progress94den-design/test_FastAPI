@@ -6,7 +6,12 @@ from fastapi_pagination import Page, Params
 from fastapi_pagination.ext.sqlalchemy import paginate
 
 from core.db_helper import db_helper
-from schemas.article import ArticleCreate, ArticleRead, ArticleUpdate
+from schemas.article import (
+    ArticleCreate,
+    ArticleRead,
+    ArticleUpdate,
+    ArticleCategoriesUpdate,
+)
 from models.users import User
 from api.dependencies.authentication.fastapi_users_routers import current_active_user
 from services.article import article_service
@@ -78,5 +83,24 @@ async def delete_article(
     return await article_service.delete_article(
         article_id=article_id,
         session=session,
+        user=user,
+    )
+
+
+@article_router.put(
+    "/{article_id}/categories",
+    response_model=ArticleRead,
+)
+async def set_article_categories(
+    article_id: UUID,
+    data: Annotated[ArticleCategoriesUpdate, Depends(ArticleCategoriesUpdate)],
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    user: Annotated[User, Depends(current_active_user)],
+):
+    return await article_service.set_categories(
+        session=session,
+        article_id=article_id,
+        category_ids=data.category_ids,
+        # category_ids=data,
         user=user,
     )

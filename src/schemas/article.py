@@ -28,3 +28,7 @@ class ArticleRead(ArticleBase):
 class ArticleUpdate(BaseModel):
     title: Optional[str] = Field(default=None)
     text: Optional[str] = Field(default=None)
+
+
+class ArticleCategoriesUpdate(BaseModel):
+    category_ids: Optional[list[UUID]] = Field(default=None)

@@ -3,6 +3,7 @@ from models.category import Category
 from sqlalchemy import select
 from sqlalchemy.sql import Select
 from sqlalchemy.ext.asyncio import AsyncSession
+from uuid import UUID
 
 
 class CRUDCategory(CRUDBase[Category]):
@@ -17,3 +18,14 @@ class CRUDCategory(CRUDBase[Category]):
         stmt = select(self.model).where(self.model.name == name)
         result = await session.execute(stmt)
         return result.scalar_one_or_none()
+
+    async def get_by_ids(
+        self,
+        session: AsyncSession,
+        ids: list[UUID],
+    ) -> list[Category]:
+        if not ids:
+            return []
+        stmt = select(self.model).where(self.model.id.in_(ids))
+        result = await session.execute(stmt)
+        return list(result.scalars().all())

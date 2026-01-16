@@ -4,6 +4,7 @@ from uuid import UUID
 from sqlalchemy.sql import Select
 
 from crud.article import CRUDArticle
+from crud.category import CRUDCategory
 from schemas.article import ArticleCreate, ArticleUpdate
 from models.users import User
 from models.article import Article, DeletedArticle
@@ -12,8 +13,14 @@ from services.minio import MinioService, minio_service
 
 class ArticleService:
 
-    def __init__(self, crud: CRUDArticle, minio: MinioService) -> None:
-        self.crud = crud
+    def __init__(
+        self,
+        article_crud: CRUDArticle,
+        category_crud: CRUDCategory,
+        minio: MinioService,
+    ) -> None:
+        self.article_crud = article_crud
+        self.category_crud = category_crud
         self.minio = minio
 
     async def get_article(
@@ -22,7 +29,7 @@ class ArticleService:
         article_id: UUID,
     ) -> Article:
 
-        article = await self.crud.get_by_id(
+        article = await self.article_crud.get_by_id(
             obj_id=article_id,
             session=session,
         )
@@ -37,9 +44,53 @@ class ArticleService:
 
     def get_articles_stmt(self, search: str | None = None) -> Select:
         if search:
-            return self.crud.search_stmt(query=search)
+            return self.article_crud.search_stmt(query=search)
 
-        return self.crud.get_list_stmt()
+        return self.article_crud.get_list_stmt()
+
+    async def set_categories(
+        self,
+        session: AsyncSession,
+        article_id: UUID,
+        category_ids: list[UUID] | None,
+        user: User,
+    ) -> Article:
+        article = await self.get_article(
+            article_id=article_id,
+            session=session,
+        )
+
+        if article.user_id != user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"You are not allowed to update this article",
+            )
+
+        if category_ids is None:
+            return article
+
+        if not category_ids:
+            article.categories.clear()
+            await session.commit()
+            await session.refresh(article)
+            return article
+
+        categories = await self.category_crud.get_by_ids(
+            session=session,
+            ids=category_ids,
+        )
+
+        if len(categories) != len(set(category_ids)):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="One or more categories not found",
+            )
+
+        article.categories = categories
+
+        await session.commit()
+        await session.refresh(article)
+        return article
 
     async def create_article(
         self,
@@ -48,7 +99,7 @@ class ArticleService:
         user: User,
         image: UploadFile | None,
     ) -> Article:
-        article = await self.crud.create(
+        article = await self.article_crud.create(
             data={
                 "title": data.title,
                 "text": data.text,
@@ -118,7 +169,7 @@ class ArticleService:
                 detail=f"You are not allowed to deleted this article",
             )
 
-        data = self.crud.copy_model(
+        data = self.article_crud.copy_model(
             instance=article,
             exclude={
                 "search_vector",
@@ -132,4 +183,8 @@ class ArticleService:
         await session.commit()
 
 
-article_service: ArticleService = ArticleService(CRUDArticle(), minio_service)
+article_service: ArticleService = ArticleService(
+    article_crud=CRUDArticle(),
+    category_crud=CRUDCategory(),
+    minio=minio_service,
+)
