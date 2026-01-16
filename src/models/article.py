@@ -1,13 +1,14 @@
 from typing import TYPE_CHECKING
 
 from datetime import datetime
-from uuid import UUID
 from sqlalchemy import String, Text, func, ForeignKey, Index, Computed
 from sqlalchemy.orm import relationship, mapped_column, Mapped
 from sqlalchemy.dialects.postgresql import TSVECTOR
+from uuid import UUID
 
 if TYPE_CHECKING:
     from models.users import User
+    from models.category import Category
 
 from models.base import Base
 from models.mixins.uuid_pk import UUIDPkMixin
@@ -29,13 +30,19 @@ class ArticleBase(UUIDPkMixin, Base):
         nullable=False,
     )
 
-    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    user_id: Mapped["UUID"] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
 
 
 class Article(ArticleBase):
     __tablename__ = "articles"
 
     user: Mapped["User"] = relationship(back_populates="articles")
+    categories: Mapped[list["Category"]] = relationship(
+        "Category",
+        secondary="article_category_associations",
+        back_populates="articles",
+        lazy="selectin",
+    )
 
     search_vector: Mapped[TSVECTOR] = mapped_column(
         TSVECTOR,
@@ -67,3 +74,8 @@ class DeletedArticle(ArticleBase):
     )
 
     user: Mapped["User"] = relationship(back_populates="deleted_articles")
+    categories: Mapped[list["Category"]] = relationship(
+        "Category",
+        secondary="article_category_associations",
+        lazy="selectin",
+    )
