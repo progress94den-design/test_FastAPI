@@ -20,13 +20,22 @@ class ArticleBase(UUIDPkMixin, Base):
     text: Mapped[str] = mapped_column(Text, nullable=False)
     image: Mapped[str | None] = mapped_column(String(255), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(), nullable=False
+        server_default=func.now(),
+        nullable=False,
     )
     updated_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(), onupdate=func.now(), nullable=False
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
     )
 
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+
+
+class Article(ArticleBase):
+    __tablename__ = "articles"
+
+    user: Mapped["User"] = relationship(back_populates="articles")
 
     search_vector: Mapped[TSVECTOR] = mapped_column(
         TSVECTOR,
@@ -40,12 +49,6 @@ class ArticleBase(UUIDPkMixin, Base):
         nullable=False,
     )
 
-
-class Article(ArticleBase):
-    __tablename__ = "articles"
-
-    user: Mapped["User"] = relationship(back_populates="articles")
-
     __table_args__ = (
         Index(
             "ix_article_search_vector_gin",
@@ -53,3 +56,14 @@ class Article(ArticleBase):
             postgresql_using="gin",
         ),
     )
+
+
+class DeletedArticle(ArticleBase):
+    __tablename__ = "deleted_articles"
+
+    deleted_at: Mapped[datetime] = mapped_column(
+        server_default=func.now(),
+        nullable=False,
+    )
+
+    user: Mapped["User"] = relationship(back_populates="deleted_articles")

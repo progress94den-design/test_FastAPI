@@ -5,7 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.ext.asyncio import AsyncSession
 
 if TYPE_CHECKING:
-    from models.article import Article
+    from models.article import Article, DeletedArticle
 
 
 from models.base import Base
@@ -20,6 +20,10 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
         back_populates="user",
         cascade="all, delete-orphan",
         passive_deletes=True,
+    )
+    deleted_articles: Mapped[list["DeletedArticle"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
     )
 
     @classmethod
