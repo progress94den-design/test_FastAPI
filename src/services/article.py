@@ -6,7 +6,7 @@ from sqlalchemy.sql import Select
 from crud.article import CRUDArticle
 from schemas.article import ArticleCreate, ArticleUpdate
 from models.users import User
-from models.article import Article
+from models.article import Article, DeletedArticle
 from services.minio import MinioService, minio_service
 
 
@@ -103,5 +103,33 @@ class ArticleService:
         await session.commit()
         await session.refresh(article)
         return article
+
+    async def delete_article(
+        self,
+        article_id: UUID,
+        session: AsyncSession,
+        user: User,
+    ) -> None:
+        article = await self.get_article(article_id=article_id, session=session)
+
+        if user.id != article.user_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"You are not allowed to deleted this article",
+            )
+
+        data = self.crud.copy_model(
+            instance=article,
+            exclude={
+                "search_vector",
+            },
+        )
+
+        deleted_article = DeletedArticle(**data)
+
+        session.add(deleted_article)
+        await session.delete(article)
+        await session.commit()
+
 
 article_service: ArticleService = ArticleService(CRUDArticle(), minio_service)

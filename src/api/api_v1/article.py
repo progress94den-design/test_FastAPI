@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, UploadFile, File
+from fastapi import APIRouter, Depends, Query, UploadFile, File, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated
 from uuid import UUID
@@ -66,4 +66,17 @@ async def update_article(
         session=session,
         user=user,
         image=image,
+    )
+
+
+@article_router.delete("/{article_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_article(
+    article_id: UUID,
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    user: Annotated[User, Depends(current_active_user)],
+):
+    return await article_service.delete_article(
+        article_id=article_id,
+        session=session,
+        user=user,
     )

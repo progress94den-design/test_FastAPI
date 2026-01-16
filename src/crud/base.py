@@ -28,3 +28,16 @@ class CRUDBase(Generic[ModelType]):
         session.add(obj)
         await session.flush()  # получаем id, не коммитя
         return obj
+
+    def copy_model(
+        self,
+        instance: ModelType,
+        exclude: set[str] | None = None,
+    ) -> dict:
+        exclude = exclude or set()
+
+        return {
+            column.name: getattr(instance, column.name)
+            for column in instance.__table__.columns
+            if column.name not in exclude
+        }
