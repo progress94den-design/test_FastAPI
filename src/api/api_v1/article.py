@@ -101,6 +101,5 @@ async def set_article_categories(
         session=session,
         article_id=article_id,
         category_ids=data.category_ids,
-        # category_ids=data,
         user=user,
     )
