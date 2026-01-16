@@ -35,7 +35,7 @@ async def create_article(
 
 
 @article_router.get("/{article_id}", response_model=ArticleRead)
-async def get_artice(
+async def get_article(
     article_id: UUID,
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
     user: Annotated[User, Depends(current_active_user)],
