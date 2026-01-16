@@ -1,5 +1,6 @@
 from sqlalchemy import select, func
 from sqlalchemy.sql import Select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from crud.base import CRUDBase
 from models.article import Article

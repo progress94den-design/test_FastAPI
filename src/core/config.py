@@ -33,6 +33,7 @@ class ApiV1Prefix(BaseModel):
     users: str = "/users"
     auth: str = "/auth"
     article: str = "/article"
+    category: str = "/categories"
 
 
 class ApiPrefix(BaseModel):
