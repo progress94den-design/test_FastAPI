@@ -42,11 +42,22 @@ class ArticleService:
 
         return article
 
-    def get_articles_stmt(self, search: str | None = None) -> Select:
+    def get_articles_stmt(
+        self,
+        search: str | None = None,
+        category_id: UUID | None = None,
+    ) -> Select:
         if search:
-            return self.article_crud.search_stmt(query=search)
+            stmt = self.article_crud.search_stmt(query=search)
+        else:
+            stmt = self.article_crud.get_list_stmt()
 
-        return self.article_crud.get_list_stmt()
+        if category_id:
+            stmt = self.article_crud.filter_by_category(
+                stmt=stmt,
+                category_id=category_id,
+            )
+        return stmt
 
     async def set_categories(
         self,

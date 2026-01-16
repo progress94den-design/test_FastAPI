@@ -1,8 +1,10 @@
 from sqlalchemy import select, func
 from sqlalchemy.sql import Select
+from uuid import UUID
 
 from crud.base import CRUDBase
 from models.article import Article
+from models.category import Category
 
 
 class CRUDArticle(CRUDBase[Article]):
@@ -24,4 +26,8 @@ class CRUDArticle(CRUDBase[Article]):
             .where(self.model.search_vector.op("@@")(ts_query))
             .order_by(self.model.created_at.desc())
         )
+        return stmt
+
+    def filter_by_category(self, stmt: Select, category_id: UUID) -> Select:
+        stmt = stmt.join(Article.categories).where(Category.id == category_id)
         return stmt

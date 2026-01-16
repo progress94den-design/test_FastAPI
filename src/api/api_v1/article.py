@@ -52,8 +52,9 @@ async def get_articles(
     params: Annotated[Params, Depends(Params)],
     user: Annotated[User, Depends(current_active_user)],
     search: str | None = Query(None, min_length=2),
+    category_id: UUID | None = Query(None),
 ):
-    stmt = article_service.get_articles_stmt(search=search)
+    stmt = article_service.get_articles_stmt(search=search, category_id=category_id)
     return await paginate(session, stmt, params)
 
 
