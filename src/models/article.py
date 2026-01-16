@@ -76,6 +76,7 @@ class DeletedArticle(ArticleBase):
     user: Mapped["User"] = relationship(back_populates="deleted_articles")
     categories: Mapped[list["Category"]] = relationship(
         "Category",
-        secondary="article_category_associations",
+        secondary="deleted_article_category_associations",
+        back_populates="deleted_articles",
         lazy="selectin",
     )

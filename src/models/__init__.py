@@ -7,10 +7,15 @@ __all__ = (
     "DeletedArticle",
     "Category",
     "ArticleCategoryAssociation",
+    "DeletedArticleCategoryAssociation",
 )
 
 from models.base import Base
 from models.users import User
 from models.article import Article, ArticleBase, DeletedArticle
 from models.mixins.uuid_pk import UUIDPkMixin
-from models.category import Category, ArticleCategoryAssociation
+from models.category import (
+    Category,
+    ArticleCategoryAssociation,
+    DeletedArticleCategoryAssociation,
+)
