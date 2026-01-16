@@ -180,6 +180,8 @@ class ArticleService:
                 detail=f"You are not allowed to deleted this article",
             )
 
+        categories = list(article.categories)
+
         data = self.article_crud.copy_model(
             instance=article,
             exclude={
@@ -188,6 +190,8 @@ class ArticleService:
         )
 
         deleted_article = DeletedArticle(**data)
+        await session.flush()
+        deleted_article.categories = categories
 
         session.add(deleted_article)
         await session.delete(article)
