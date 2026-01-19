@@ -14,18 +14,15 @@ class RunServer(BaseModel):
 class EmailConfig(BaseModel):
     host: str
     port: int
-    # admin_email: str = "admin@site.com"
     admin_email: str
 
 
 class TaskiqConfig(BaseModel):
-    # url: AmqpDsn
     host: str
     port: int = 5672
     user: str
     password: str
 
-    # amqp://guest:guest@localhost:5672//
     @property
     def url(self) -> AmqpDsn:
         return AmqpDsn.build(
@@ -41,7 +38,6 @@ class TaskiqConfig(BaseModel):
 class MinioConfig(BaseModel):
     host: str
     port: int = 9000
-    # endpoint: str
     access_key: str
     secret_key: str
     secure: bool = False
@@ -78,15 +74,12 @@ class DatabaseConfig(BaseModel):
     user: str
     password: str
     name: str
-    #
-    # url: PostgresDsn
 
     echo: bool = False
     echo_pool: bool = False
     pool_size: int = 50
     max_overflow: int = 10
 
-    # postgresql+asyncpg://us_api_db:pas_api_db@db:5432/api_db
     @property
     def url(self) -> PostgresDsn:
         return PostgresDsn.build(
@@ -125,4 +118,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-print(settings.db.url)
