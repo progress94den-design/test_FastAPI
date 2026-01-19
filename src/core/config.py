@@ -12,20 +12,43 @@ class RunServer(BaseModel):
 
 
 class EmailConfig(BaseModel):
-    host: str = "127.0.0.1"
-    port: int = 1025
-    admin_email: str = "admin@site.com"
+    host: str
+    port: int
+    # admin_email: str = "admin@site.com"
+    admin_email: str
 
 
 class TaskiqConfig(BaseModel):
-    url: AmqpDsn
+    # url: AmqpDsn
+    host: str
+    port: int = 5672
+    user: str
+    password: str
+
+    # amqp://guest:guest@localhost:5672//
+    @property
+    def url(self) -> AmqpDsn:
+        return AmqpDsn.build(
+            scheme="amqp",
+            username=self.user,
+            password=self.password,
+            host=self.host,
+            port=self.port,
+            path=f"/",
+        )
 
 
 class MinioConfig(BaseModel):
-    endpoint: str
+    host: str
+    port: int = 9000
+    # endpoint: str
     access_key: str
     secret_key: str
     secure: bool = False
+
+    @property
+    def endpoint(self) -> str:
+        return f"{self.host}:{self.port}"
 
 
 class ApiV1Prefix(BaseModel):
@@ -33,7 +56,7 @@ class ApiV1Prefix(BaseModel):
     users: str = "/users"
     auth: str = "/auth"
     article: str = "/article"
-    category: str = "/categories"
+    category: str = "/category"
 
 
 class ApiPrefix(BaseModel):
@@ -50,11 +73,30 @@ class CookieConfig(BaseModel):
 
 
 class DatabaseConfig(BaseModel):
-    url: PostgresDsn
+    host: str
+    port: int = 5432
+    user: str
+    password: str
+    name: str
+    #
+    # url: PostgresDsn
+
     echo: bool = False
     echo_pool: bool = False
     pool_size: int = 50
     max_overflow: int = 10
+
+    # postgresql+asyncpg://us_api_db:pas_api_db@db:5432/api_db
+    @property
+    def url(self) -> PostgresDsn:
+        return PostgresDsn.build(
+            scheme="postgresql+asyncpg",
+            username=self.user,
+            password=self.password,
+            host=self.host,
+            port=self.port,
+            path=f"{self.name}",
+        )
 
     # Naming Conventions into Operations, Autogenerate
     naming_convention: dict[str, str] = {
@@ -77,9 +119,10 @@ class Settings(BaseSettings):
     api_prefix: ApiPrefix = ApiPrefix()
     db: DatabaseConfig
     cookie: CookieConfig
-    email: EmailConfig = EmailConfig()
+    email: EmailConfig
     taskiq: TaskiqConfig
     minio: MinioConfig
 
 
 settings = Settings()
+print(settings.db.url)
