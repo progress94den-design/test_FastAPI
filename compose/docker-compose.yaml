@@ -1,0 +1,107 @@
+services:
+  api:
+    build:
+      context: ../
+      dockerfile: compose/Dockerfile
+    container_name: fastapi_api
+    restart: unless-stopped
+    env_file:
+      - ../src/.env.app
+    environment:
+      CONTAINER_TYPE: api
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - rabbitmq
+      - minio
+      - maildev
+
+  db:
+    image: postgres:16
+    container_name: fastapi_postgres_db
+    restart: always
+    env_file:
+      - ../src/.env.cont
+    environment:
+      CONTAINER_TYPE: db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER  -d $$POSTGRES_DB" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: rabbitmq
+    restart: unless-stopped
+    env_file:
+      - ../src/.env.cont
+    environment:
+      CONTAINER_TYPE: rabbitmq
+    ports:
+      - "5672:5672"     # AMQP
+      - "15672:15672"   # Web UI
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "check_running" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  maildev:
+    image: maildev/maildev
+    container_name: maildev
+    restart: unless-stopped
+    environment:
+      CONTAINER_TYPE: maildev
+      MAILDEV_SMTP_PORT: 1025
+      MAILDEV_WEB_PORT: 1080
+      TZ: Europe/Moscow
+    ports:
+      - "8080:1080"
+      - "1025:1025"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+
+  minio:
+    image: minio/minio
+    container_name: minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    env_file:
+      - ../src/.env.cont
+    environment:
+      CONTAINER_TYPE: minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+
+  worker:
+    build:
+      context: ../
+      dockerfile: compose/Dockerfile
+    container_name: fastapi_worker
+    restart: unless-stopped
+    env_file:
+      - ../src/.env.app
+    environment:
+      CONTAINER_TYPE: worker
+    depends_on:
+      - db
+      - rabbitmq
+      - maildev
+
+volumes:
+  rabbitmq-data:
+  minio_data:
+  postgres_data:
